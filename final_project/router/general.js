@@ -1,14 +1,38 @@
 const axios = require('axios').default;
 const express = require('express');
+const bodyParser = require('body-parser');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+const app = new express;
+app.use(bodyParser.json());
 
-public_users.post("/register", (req,res) => {
+
+public_users.post("/register",bodyParser.json(), (req,res) => {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const reguser = req.body;
+  var message='';
+  var status;
+  if(reguser.username && reguser.password){    
+    let filtered_users = users.filter((user) => user.username === reguser.username);
+
+    if (filtered_users.length > 0) {
+      let filtered_user = filtered_users[0];
+      status=401;
+      message='user already exists';
+     }else{
+      users.push(reguser);
+      console.log(users)
+      status=401;
+      message='user successfully registered';
+     }  
+  }else{
+    status=401;
+    message='You must provide username and password!';
+  }
+  return res.status(status).json({message: message});
 });
 
 // Get the book list available in the shop
